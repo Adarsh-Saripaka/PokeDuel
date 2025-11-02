@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeBattle⚔️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1 class="welcome">Welcome to Pokémon Battle Arena!</h1>
+        <br>
+        <h3 class="hero">Dive into the Pokémon World and Refresh your memories</h3>
+        <br>
+    </header>
+
+    <div class="user">
+        <div class="Player1">
+            <h2>Player 1</h2>
+            <br>
+            <input type="text" class="pokemon_name1" id="PokemonName1" placeholder="Enter your Pokémon">
+            <button class="ready-btn" onclick="fetchData(1)">Ready</button>
+            <br>
+            <p id="ready1" class="ready">Not Ready!</p>
+        </div>
+
+        <div class="Player2">
+            <h2>Player 2</h2>
+            <br>
+            <input type="text" class="pokemon_name2" id="PokemonName2" placeholder="Enter your Pokémon">
+            <button class="ready-btn" onclick="fetchData(2)">Ready</button>
+            <br>
+            <p id="ready2" class="ready">Not Ready!</p>
+        </div>
+    </div>
+
+    <div class="arena">
+        <div class="hp" id="hp1"></div>
+        <p class="vs">VS</p>
+        <div class="hp" id="hp2"></div>
+    </div>
+
+    <div class="battle-arena">
+        <p id="Question">Choose your battle field</p>
+        <br><br>
+        <div class="battlefield">
+            <button class="battle-btn" onclick="changeBattlefield('rock')">Rock</button>
+            <button class="battle-btn" onclick="changeBattlefield('forest')">Forest</button>
+            <button class="battle-btn" onclick="changeBattlefield('water')">Water</button>
+            <button class="battle-btn" onclick="changeBattlefield('grass')">Grass</button>
+        </div>
+        <div class="pokemon-container">
+            <img src="" alt="poke" id="pokemon1">
+            <img src="" alt="poke" id="pokemon2">
+        </div>
+        <button class="battle-button" onclick="startBattle()">⚔️ BATTLE! ⚔️</button>
+        <p id="result"></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
