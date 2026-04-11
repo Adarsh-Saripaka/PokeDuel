@@ -12,6 +12,21 @@
     --font-main: 'Outfit', sans-serif;
 }
 
+#perf-monitor {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    z-index: 1000;
+    pointer-events: none;
+    border: 1px solid var(--glass-border);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -240,8 +255,97 @@ input[type="text"]:focus {
     font-size: 0.9rem;
     letter-spacing: 1px;
     text-transform: uppercase;
+    margin-top: auto;
 }
 
+.team-container {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.team-slot {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    border: 2px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+.team-slot img {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+
+.team-slot:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.team-slot.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(255, 222, 0, 0.3);
+}
+
+.pokemon-details-preview {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.pokemon-details-preview img {
+    max-height: 160px;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.stat-item h3 {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.stat-item p {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
 .battle-arena-container {
     width: 100%;
     max-width: 1000px;
@@ -252,6 +356,26 @@ input[type="text"]:focus {
     background-size: cover;
     background-position: center;
     border: 4px solid var(--glass-border);
+}
+
+@media (max-width: 768px) {
+    .battle-arena-container {
+        height: 400px;
+    }
+    .player-area {
+        width: 150px;
+    }
+    .player-1-area {
+        bottom: 20px;
+        left: 20px;
+    }
+    .player-2-area {
+        top: 20px;
+        right: 20px;
+    }
+    .hp-bar-container {
+        width: 120px;
+    }
 }
 
 .battle-overlay {

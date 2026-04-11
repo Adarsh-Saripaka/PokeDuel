@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,6 +21,16 @@
             <div class="menu-options">
                 <button class="btn btn-primary" onclick="game.startSelection('pvp')">⚔️ Local PvP</button>
                 <button class="btn btn-secondary" onclick="game.startSelection('pve')">🤖 Vs CPU</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, #FF4B2B, #FF416C); color: #fff;" onclick="multiplayer.init()">🌐 Online Duel</button>
+            </div>
+            <div class="menu-extras glass" style="margin-top: 2rem; padding: 1rem; display: flex; gap: 1rem;">
+                <select id="difficulty-select" class="btn-mini" onchange="game.difficulty = this.value" style="background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: #fff;">
+                    <option value="easy">Easy AI</option>
+                    <option value="medium" selected>Medium AI</option>
+                    <option value="hard">Hard AI</option>
+                </select>
+                <button class="btn-mini" onclick="ui.showStats()">📊 Stats</button>
+                <button class="btn-mini" id="last-replay-btn" style="display: none;" onclick="game.startReplay()">🎥 Last Replay</button>
             </div>
         </section>
 
@@ -29,11 +42,16 @@
                 <div class="player-card glass">
                     <h2>Player 1</h2>
                     <div class="search-container">
-                        <input type="text" id="p1-search" placeholder="Type Pokémon name..." onkeyup="ui.handleSearch(event, 1)">
+                        <input type="text" id="p1-search" placeholder="Search Pokemon..." onkeyup="ui.handleSearch(event, 1)">
                         <div id="p1-autocomplete" class="autocomplete-items"></div>
                     </div>
-                    <div class="pokemon-preview" id="p1-preview">
-                        <p class="text-muted">Searching...</p>
+                    <div class="team-container" id="p1-team">
+                        <div class="team-slot active" onclick="game.selectSlot(1, 0)" id="p1-slot-0"></div>
+                        <div class="team-slot" onclick="game.selectSlot(1, 1)" id="p1-slot-1"></div>
+                        <div class="team-slot" onclick="game.selectSlot(1, 2)" id="p1-slot-2"></div>
+                    </div>
+                    <div class="pokemon-details-preview" id="p1-preview">
+                        <p class="text-muted">Select a slot & search</p>
                     </div>
                     <div class="ready-status" id="p1-ready-status">Not Ready</div>
                 </div>
@@ -45,11 +63,16 @@
                 <div class="player-card glass">
                     <h2 id="p2-label">Player 2</h2>
                     <div class="search-container" id="p2-search-container">
-                        <input type="text" id="p2-search" placeholder="Type Pokémon name..." onkeyup="ui.handleSearch(event, 2)">
+                        <input type="text" id="p2-search" placeholder="Search Pokemon..." onkeyup="ui.handleSearch(event, 2)">
                         <div id="p2-autocomplete" class="autocomplete-items"></div>
                     </div>
-                    <div class="pokemon-preview" id="p2-preview">
-                        <p class="text-muted">Waiting...</p>
+                    <div class="team-container" id="p2-team">
+                        <div class="team-slot active" onclick="game.selectSlot(2, 0)" id="p2-slot-0"></div>
+                        <div class="team-slot" onclick="game.selectSlot(2, 1)" id="p2-slot-1"></div>
+                        <div class="team-slot" onclick="game.selectSlot(2, 2)" id="p2-slot-2"></div>
+                    </div>
+                    <div class="pokemon-details-preview" id="p2-preview">
+                        <p class="text-muted">Wait for search...</p>
                     </div>
                     <div class="ready-status" id="p2-ready-status">Not Ready</div>
                 </div>
@@ -112,7 +135,18 @@
         <section id="end-screen" class="screen">
             <h1 id="winner-text"></h1>
             <p class="subtitle">The duel has concluded.</p>
-            <button class="btn btn-primary" onclick="game.reset()">Play Again</button>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="game.reset()">Play Again</button>
+                <button class="btn btn-secondary" onclick="game.startReplay()">Watch Replay 🎥</button>
+            </div>
+        </section>
+
+        <section id="stats-screen" class="screen">
+            <h1>YOUR CAREER</h1>
+            <div class="stats-grid glass" id="stats-container">
+                <!-- Filled via JS -->
+            </div>
+            <button class="btn btn-primary" style="margin-top: 2rem;" onclick="ui.showScreen('menu-screen')">Back to Menu</button>
         </section>
 
     </div>
