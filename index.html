@@ -3,152 +3,413 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Duel | Elite Arena</title>
+    <title>Pokémon Duel | Elite Arena Showdown</title>
+    <meta name="description" content="Experience high-stakes competitive Pokémon battles with animated sprites, tactical type advantages, and dynamic arenas.">
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
+    
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div class="container">
-        
-        <section id="menu-screen" class="screen active">
-            <h1>POKÉMON DUEL</h1>
-            <p class="subtitle">Enter the Ultimate Battle Arena</p>
-            <div class="menu-options">
-                <button class="btn btn-primary" onclick="game.startSelection('pvp')">⚔️ Local PvP</button>
-                <button class="btn btn-secondary" onclick="game.startSelection('pve')">🤖 Vs CPU</button>
-                <button class="btn btn-primary" style="background: linear-gradient(135deg, #FF4B2B, #FF416C); color: #fff;" onclick="multiplayer.init()">🌐 Online Duel</button>
+
+    <!-- Floating Top Navigation Bar -->
+    <header class="navbar glass">
+        <div class="brand-logo" onclick="ui.showScreen('menu-screen')" title="Pokémon Duel - Home">
+            <div class="brand-icon-wrapper">
+                <div class="pokeball-inner"></div>
             </div>
-            <div class="menu-extras glass" style="margin-top: 2rem; padding: 1rem; display: flex; gap: 1rem;">
-                <select id="difficulty-select" class="btn-mini" onchange="game.difficulty = this.value" style="background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: #fff;">
-                    <option value="easy">Easy AI</option>
-                    <option value="medium" selected>Medium AI</option>
-                    <option value="hard">Hard AI</option>
-                </select>
-                <button class="btn-mini" onclick="ui.showStats()">📊 Stats</button>
+            <div class="brand-text-block">
+                <span class="brand-title">POKÉMON DUEL</span>
+                <span class="brand-tag">ELITE ARENA</span>
+            </div>
+        </div>
+
+        <nav class="nav-actions">
+            <!-- Audio Music Toggle -->
+            <button class="nav-btn" id="music-toggle-btn" onclick="soundFx.toggleMusic()" title="Toggle Background Music">
+                <span id="music-icon">🎵</span>
+                <div class="audio-equalizer" id="audio-eq">
+                    <span class="eq-bar"></span>
+                    <span class="eq-bar"></span>
+                    <span class="eq-bar"></span>
+                </div>
+            </button>
+
+            <!-- SFX Toggle -->
+            <button class="nav-btn" id="sfx-toggle-btn" onclick="soundFx.toggleSfx()" title="Toggle Sound FX">
+                <span id="sfx-icon">🔊</span> SFX
+            </button>
+
+            <!-- Type Chart Modal Toggle -->
+            <button class="nav-btn" onclick="ui.toggleTypeModal(true)" title="View Elemental Advantages">
+                <span>⚡</span> Types
+            </button>
+
+            <!-- Career Stats -->
+            <button class="nav-btn" onclick="ui.showStats()" title="View Battle Stats">
+                <span>📊</span> Career
+            </button>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <!-- 1. MAIN MENU SCREEN -->
+        <section id="menu-screen" class="screen active">
+            <div class="hero-pokeball-container">
+                <div class="hero-aura-ring"></div>
+                <div class="hero-pokeball">
+                    <div class="hero-pokeball-core"></div>
+                </div>
+            </div>
+
+            <h1>POKÉMON DUEL</h1>
+            <p class="subtitle">Step into the Elite Arena. Build your 3-Pokémon dream team and dominate the battlefield!</p>
+
+            <div class="menu-options">
+                <!-- Local PvP -->
+                <div class="mode-card glass" onclick="game.startSelection('pvp')">
+                    <div class="mode-card-icon">⚔️</div>
+                    <h2 class="mode-card-title">Local PvP</h2>
+                    <p class="mode-card-desc">Pass-and-play duel against a friend on the same screen.</p>
+                    <button class="btn btn-primary">Start PvP</button>
+                </div>
+
+                <!-- Vs AI Trainer -->
+                <div class="mode-card glass" onclick="game.startSelection('pve')">
+                    <div class="mode-card-icon">🤖</div>
+                    <h2 class="mode-card-title">Vs CPU Trainer</h2>
+                    <p class="mode-card-desc">Challenge the tactical AI engine with scaled difficulties.</p>
+                    <button class="btn btn-secondary">Battle AI</button>
+                </div>
+
+                <!-- Online Duel -->
+                <div class="mode-card glass" onclick="multiplayer.init()">
+                    <div class="mode-card-icon">🌐</div>
+                    <h2 class="mode-card-title">Online Duel</h2>
+                    <p class="mode-card-desc">Compete in real-time online battle rooms with peer trainers.</p>
+                    <button class="btn btn-accent">Multiplayer</button>
+                </div>
+            </div>
+
+            <div class="menu-extras glass">
+                <div class="difficulty-pill-group">
+                    <span class="difficulty-label">AI Level:</span>
+                    <select id="difficulty-select" onchange="game.difficulty = this.value">
+                        <option value="easy">Casual AI</option>
+                        <option value="medium" selected>Elite AI</option>
+                        <option value="hard">Champion AI</option>
+                    </select>
+                </div>
+
+                <button class="btn-mini" onclick="game.quickStart()">⚡ Instant Duel</button>
+                <button class="btn-mini" onclick="ui.showStats()">📊 Career Stats</button>
                 <button class="btn-mini" id="last-replay-btn" style="display: none;" onclick="game.startReplay()">🎥 Last Replay</button>
             </div>
         </section>
 
+        <!-- 2. TEAM SELECTION SCREEN -->
         <section id="selection-screen" class="screen">
-            <h1>Select Your Duelists</h1>
-            <p class="subtitle" id="selection-status">Choose your Pokémon to begin</p>
+            <h1>Assemble Your Roster</h1>
+            <p class="subtitle" id="selection-status">Draft 3 Pokémon for each side to enter the arena</p>
             
             <div class="selection-container">
-                <div class="player-card glass">
-                    <h2>Player 1</h2>
+                <!-- Player 1 Card -->
+                <div class="player-card glass" id="player-1-card">
+                    <div class="player-card-header">
+                        <div class="player-title-badge">
+                            <h2>Player 1</h2>
+                            <span class="player-badge-pill">Trainer</span>
+                        </div>
+                        <button class="btn-mini" onclick="game.randomizeTeam(1)" title="Draft random Pokemon">🎲 Auto-Fill</button>
+                    </div>
+
+                    <div class="team-container" id="p1-team">
+                        <div class="team-slot active" data-slot-num="1" onclick="game.selectSlot(1, 0)" id="p1-slot-0"></div>
+                        <div class="team-slot" data-slot-num="2" onclick="game.selectSlot(1, 1)" id="p1-slot-1"></div>
+                        <div class="team-slot" data-slot-num="3" onclick="game.selectSlot(1, 2)" id="p1-slot-2"></div>
+                    </div>
+
                     <div class="search-container">
-                        <input type="text" id="p1-search" placeholder="Search Pokemon..." onkeyup="ui.handleSearch(event, 1)">
+                        <div class="search-input-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="p1-search" placeholder="Search Pokémon (e.g. Charizard)..." onkeyup="ui.handleSearch(event, 1)" autocomplete="off">
+                        </div>
                         <div id="p1-autocomplete" class="autocomplete-items"></div>
                     </div>
-                    <div class="team-container" id="p1-team">
-                        <div class="team-slot active" onclick="game.selectSlot(1, 0)" id="p1-slot-0"></div>
-                        <div class="team-slot" onclick="game.selectSlot(1, 1)" id="p1-slot-1"></div>
-                        <div class="team-slot" onclick="game.selectSlot(1, 2)" id="p1-slot-2"></div>
+
+                    <!-- Quick Pick Chips -->
+                    <div class="quick-pick-container">
+                        <span class="quick-pick-title">Popular Duelists:</span>
+                        <div class="quick-pick-chips">
+                            <span class="roster-chip" onclick="game.quickSelect('charizard', 1)">Charizard</span>
+                            <span class="roster-chip" onclick="game.quickSelect('pikachu', 1)">Pikachu</span>
+                            <span class="roster-chip" onclick="game.quickSelect('gengar', 1)">Gengar</span>
+                            <span class="roster-chip" onclick="game.quickSelect('greninja', 1)">Greninja</span>
+                            <span class="roster-chip" onclick="game.quickSelect('lucario', 1)">Lucario</span>
+                            <span class="roster-chip" onclick="game.quickSelect('mewtwo', 1)">Mewtwo</span>
+                        </div>
                     </div>
+
                     <div class="pokemon-details-preview" id="p1-preview">
-                        <p class="text-muted">Select a slot & search</p>
+                        <p class="text-muted">Select a slot & search or pick a Pokémon</p>
                     </div>
-                    <div class="ready-status" id="p1-ready-status">Not Ready</div>
+
+                    <div class="ready-status" id="p1-ready-status">0/3 READY</div>
                 </div>
 
-                <div class="vs-divider glass">
-                    <h2 class="vs-text">VS</h2>
+                <!-- VS Divider -->
+                <div class="vs-divider">
+                    <div class="vs-badge">
+                        <span class="vs-text">VS</span>
+                    </div>
                 </div>
 
-                <div class="player-card glass">
-                    <h2 id="p2-label">Player 2</h2>
+                <!-- Player 2 / CPU Card -->
+                <div class="player-card glass" id="player-2-card">
+                    <div class="player-card-header">
+                        <div class="player-title-badge">
+                            <h2 id="p2-label">Player 2</h2>
+                            <span class="player-badge-pill">Rival</span>
+                        </div>
+                        <button class="btn-mini" id="p2-random-btn" onclick="game.randomizeTeam(2)" title="Draft random Pokemon">🎲 Auto-Fill</button>
+                    </div>
+
+                    <div class="team-container" id="p2-team">
+                        <div class="team-slot active" data-slot-num="1" onclick="game.selectSlot(2, 0)" id="p2-slot-0"></div>
+                        <div class="team-slot" data-slot-num="2" onclick="game.selectSlot(2, 1)" id="p2-slot-1"></div>
+                        <div class="team-slot" data-slot-num="3" onclick="game.selectSlot(2, 2)" id="p2-slot-2"></div>
+                    </div>
+
                     <div class="search-container" id="p2-search-container">
-                        <input type="text" id="p2-search" placeholder="Search Pokemon..." onkeyup="ui.handleSearch(event, 2)">
+                        <div class="search-input-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="p2-search" placeholder="Search Pokémon..." onkeyup="ui.handleSearch(event, 2)" autocomplete="off">
+                        </div>
                         <div id="p2-autocomplete" class="autocomplete-items"></div>
                     </div>
-                    <div class="team-container" id="p2-team">
-                        <div class="team-slot active" onclick="game.selectSlot(2, 0)" id="p2-slot-0"></div>
-                        <div class="team-slot" onclick="game.selectSlot(2, 1)" id="p2-slot-1"></div>
-                        <div class="team-slot" onclick="game.selectSlot(2, 2)" id="p2-slot-2"></div>
+
+                    <!-- Quick Pick Chips for P2 -->
+                    <div class="quick-pick-container" id="p2-quick-picks">
+                        <span class="quick-pick-title">Popular Duelists:</span>
+                        <div class="quick-pick-chips">
+                            <span class="roster-chip" onclick="game.quickSelect('rayquaza', 2)">Rayquaza</span>
+                            <span class="roster-chip" onclick="game.quickSelect('garchomp', 2)">Garchomp</span>
+                            <span class="roster-chip" onclick="game.quickSelect('blastoise', 2)">Blastoise</span>
+                            <span class="roster-chip" onclick="game.quickSelect('venusaur', 2)">Venusaur</span>
+                            <span class="roster-chip" onclick="game.quickSelect('snorlax', 2)">Snorlax</span>
+                            <span class="roster-chip" onclick="game.quickSelect('dragonite', 2)">Dragonite</span>
+                        </div>
                     </div>
+
                     <div class="pokemon-details-preview" id="p2-preview">
-                        <p class="text-muted">Wait for search...</p>
+                        <p class="text-muted">Select a slot & pick a Pokémon</p>
                     </div>
-                    <div class="ready-status" id="p2-ready-status">Not Ready</div>
+
+                    <div class="ready-status" id="p2-ready-status">0/3 READY</div>
                 </div>
             </div>
 
-            <div class="battleground-selector glass" style="margin-top: 2rem; padding: 1.5rem; width: 100%; text-align: center;">
+            <!-- Battlefield Selector -->
+            <div class="battleground-selector glass">
                 <h3>Select Battleground</h3>
-                <div class="battlefield-btns" style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-                    <button class="btn-mini" onclick="game.selectBattleground('forest')">🌲 Forest</button>
-                    <button class="btn-mini" onclick="game.selectBattleground('rock')">🪨 Rock</button>
-                    <button class="btn-mini" onclick="game.selectBattleground('water')">🌊 Water</button>
-                    <button class="btn-mini" onclick="game.selectBattleground('stadium')">🏟️ Arena</button>
+                <div class="battlefield-grid">
+                    <div class="battleground-card" data-bg="stadium" onclick="game.selectBattleground('stadium')">
+                        <img src="battlefields/Grassarena.jpg" alt="Arena Stadium">
+                        <div class="battleground-card-label">🏟️ Champions Arena</div>
+                    </div>
+                    <div class="battleground-card" data-bg="forest" onclick="game.selectBattleground('forest')">
+                        <img src="battlefields/Forestarena.jpg" alt="Forest Arena">
+                        <div class="battleground-card-label">🌲 Viridian Forest</div>
+                    </div>
+                    <div class="battleground-card" data-bg="rock" onclick="game.selectBattleground('rock')">
+                        <img src="battlefields/Rockarena.jpg" alt="Rock Arena">
+                        <div class="battleground-card-label">🪨 Mountain Crater</div>
+                    </div>
+                    <div class="battleground-card" data-bg="water" onclick="game.selectBattleground('water')">
+                        <img src="battlefields/Waterarena.jpeg" alt="Water Arena">
+                        <div class="battleground-card-label">🌊 Azure Waters</div>
+                    </div>
                 </div>
             </div>
 
-            <button id="start-battle-btn" class="btn btn-primary" style="margin-top: 2rem; display: none;" onclick="game.initBattle()">START DUEL ⚔️</button>
+            <button id="start-battle-btn" class="btn btn-primary" style="display: none;" onclick="game.initBattle()">
+                ENTER THE ARENA ⚔️
+            </button>
         </section>
 
+        <!-- 3. BATTLE SCREEN -->
         <section id="battle-screen" class="screen">
-            <div class="battle-arena-container" id="arena-main">
+            <div class="battle-arena-container" id="arena-main" style="background-image: url('battlefields/Grassarena.jpg');">
                 <div class="battle-overlay"></div>
                 
+                <!-- Turn Banner Notification -->
+                <div class="turn-banner" id="turn-banner">
+                    <span>⚡</span> <span id="turn-banner-text">BATTLE START!</span>
+                </div>
+
+                <!-- Floating Damage Box Container -->
+                <div id="floating-damage-container"></div>
+
+                <!-- 3D Ground Perspective Platforms -->
+                <div class="battle-platform platform-p2"></div>
+                <div class="battle-platform platform-p1"></div>
+
+                <!-- Player 2 / Opponent Area -->
                 <div class="player-area player-2-area" id="p2-area">
-                    <div class="hp-info glass" style="padding: 0.5rem 1rem; margin-bottom: 1rem;">
-                        <h3 id="p2-battle-name" style="font-size: 1rem; text-transform: uppercase;"></h3>
+                    <div class="hp-info">
+                        <div class="hp-info-header">
+                            <h3 class="pokemon-hud-name" id="p2-battle-name">OPPONENT</h3>
+                            <span class="pokemon-hud-level">Lv. 50</span>
+                        </div>
+                        <div class="party-pokeballs-row" id="p2-party-pips">
+                            <span class="party-pip"></span>
+                            <span class="party-pip"></span>
+                            <span class="party-pip"></span>
+                        </div>
                         <div class="hp-bar-container">
                             <div class="hp-bar-fill" id="p2-hp-fill"></div>
                         </div>
-                        <div class="hp-text" id="p2-hp-text"></div>
+                        <div class="hp-text" id="p2-hp-text">100 / 100 HP</div>
                     </div>
                     <div class="pokemon-sprite-container">
-                        <img src="" alt="p2" class="pokemon-sprite" id="p2-sprite">
+                        <img src="" alt="Opponent Pokemon" class="pokemon-sprite" id="p2-sprite">
                     </div>
                 </div>
 
+                <!-- Player 1 Area -->
                 <div class="player-area player-1-area" id="p1-area">
-                    <div class="hp-info glass" style="padding: 0.5rem 1rem; margin-bottom: 1rem;">
-                        <h3 id="p1-battle-name" style="font-size: 1rem; text-transform: uppercase;"></h3>
+                    <div class="hp-info">
+                        <div class="hp-info-header">
+                            <h3 class="pokemon-hud-name" id="p1-battle-name">PLAYER 1</h3>
+                            <span class="pokemon-hud-level">Lv. 50</span>
+                        </div>
+                        <div class="party-pokeballs-row" id="p1-party-pips">
+                            <span class="party-pip"></span>
+                            <span class="party-pip"></span>
+                            <span class="party-pip"></span>
+                        </div>
                         <div class="hp-bar-container">
                             <div class="hp-bar-fill" id="p1-hp-fill"></div>
                         </div>
-                        <div class="hp-text" id="p1-hp-text"></div>
+                        <div class="hp-text" id="p1-hp-text">100 / 100 HP</div>
                     </div>
                     <div class="pokemon-sprite-container">
-                        <img src="" alt="p1" class="pokemon-sprite" id="p1-sprite">
+                        <img src="" alt="Player Pokemon" class="pokemon-sprite" id="p1-sprite">
                     </div>
                 </div>
             </div>
 
+            <!-- Bottom Tactical Controls -->
             <div class="battle-ui-bottom">
-                <div class="battle-log glass" id="battle-log">
-                    <p>> Welcome to the Arena!</p>
+                <!-- Battle Commentary Console -->
+                <div class="battle-log" id="battle-log">
+                    <p style="color: var(--primary-color);">> Welcome to the Pokémon Elite Battle Arena!</p>
                 </div>
-                <div class="action-menu glass" id="move-container">
-                    <p class="text-muted" style="grid-column: span 2; text-align: center;">Wait for turn...</p>
+                
+                <!-- Action Moves Grid -->
+                <div class="action-menu" id="move-container">
+                    <p class="text-muted" style="grid-column: span 2; text-align: center; margin: auto;">Select your Pokémon to begin...</p>
                 </div>
             </div>
         </section>
 
+        <!-- 4. END / VICTORY SCREEN -->
         <section id="end-screen" class="screen">
-            <h1 id="winner-text"></h1>
-            <p class="subtitle">The duel has concluded.</p>
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn btn-primary" onclick="game.reset()">Play Again</button>
-                <button class="btn btn-secondary" onclick="game.startReplay()">Watch Replay 🎥</button>
+            <div class="victory-trophy">🏆</div>
+            <h1 id="winner-text">CHAMPION!</h1>
+            <p class="subtitle">The duel has concluded. Glory belongs to the victor!</p>
+            
+            <div class="winner-sprite-preview" id="winner-preview"></div>
+
+            <div class="end-screen-actions">
+                <button class="btn btn-primary" onclick="game.reset()">⚔️ Battle Again</button>
+                <button class="btn btn-secondary" onclick="game.startReplay()">🎥 Watch Replay</button>
+                <button class="btn-mini" onclick="ui.showScreen('menu-screen')">🏠 Main Menu</button>
             </div>
         </section>
 
+        <!-- 5. CAREER & STATS SCREEN -->
         <section id="stats-screen" class="screen">
-            <h1>YOUR CAREER</h1>
+            <h1>TRAINER CAREER</h1>
+            <p class="subtitle">Track your performance and battle accomplishments</p>
+
             <div class="stats-grid glass" id="stats-container">
                 <!-- Filled via JS -->
             </div>
-            <button class="btn btn-primary" style="margin-top: 2rem;" onclick="ui.showScreen('menu-screen')">Back to Menu</button>
+
+            <div class="match-history-card glass">
+                <h3>Recent Battle History</h3>
+                <div class="match-history-list" id="match-history-list">
+                    <p class="text-muted" style="text-align: center; padding: 1rem;">No recent matches recorded yet.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="ui.showScreen('menu-screen')">Back to Menu</button>
+                <button class="btn-mini" onclick="statsManager.clear(); ui.showStats();">Clear Records</button>
+            </div>
         </section>
 
+    </main>
+
+    <!-- Modal: Type Matchup Guide -->
+    <div class="modal-backdrop" id="type-guide-modal" onclick="if(event.target === this) ui.toggleTypeModal(false)">
+        <div class="modal-card glass">
+            <button class="modal-close-btn" onclick="ui.toggleTypeModal(false)">✕</button>
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--primary-color);">ELEMENTAL ADVANTAGES</h2>
+            <p class="text-secondary" style="font-size: 0.9rem; margin-bottom: 1.5rem;">Use Super Effective (2x) moves to inflict devastating critical damage!</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; font-size: 0.85rem;">
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-fire);">
+                    <strong style="color: var(--type-fire);">🔥 FIRE</strong> deals 2x to Grass, Ice, Bug, Steel.
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-water);">
+                    <strong style="color: var(--type-water);">🌊 WATER</strong> deals 2x to Fire, Ground, Rock.
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-grass);">
+                    <strong style="color: var(--type-grass);">🌿 GRASS</strong> deals 2x to Water, Ground, Rock.
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-electric);">
+                    <strong style="color: var(--type-electric);">⚡ ELECTRIC</strong> deals 2x to Water, Flying (0x to Ground).
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-dragon);">
+                    <strong style="color: var(--type-dragon);">🐉 DRAGON</strong> deals 2x to Dragon (0x to Fairy).
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-psychic);">
+                    <strong style="color: var(--type-psychic);">🔮 PSYCHIC</strong> deals 2x to Fighting, Poison.
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-ice);">
+                    <strong style="color: var(--type-ice);">❄️ ICE</strong> deals 2x to Grass, Ground, Flying, Dragon.
+                </div>
+                <div style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border-left: 4px solid var(--type-ghost);">
+                    <strong style="color: var(--type-ghost);">👻 GHOST</strong> deals 2x to Psychic, Ghost (0x to Normal).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Multiplayer Notification -->
+    <div class="modal-backdrop" id="multiplayer-modal" onclick="if(event.target === this) ui.toggleMultiplayerModal(false)">
+        <div class="modal-card glass" style="text-align: center;">
+            <button class="modal-close-btn" onclick="ui.toggleMultiplayerModal(false)">✕</button>
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🌐</div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--secondary-color);">ONLINE MULTIPLAYER</h2>
+            <p class="text-secondary" style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                Online multiplayer lobbies connect via Firebase Realtime Database. Add your project configuration in <code>script.js</code> to host and join custom duel rooms across the web!
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" onclick="ui.toggleMultiplayerModal(false); game.startSelection('pvp');">Try Local PvP Instead</button>
+                <button class="btn-mini" onclick="ui.toggleMultiplayerModal(false)">Got It</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
